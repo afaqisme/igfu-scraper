@@ -45,7 +45,7 @@ createServer(async (req, res) => {
     res.end(JSON.stringify({ error: error.message }));
   }
 }).listen(PORT, () => {
-  console.log(`Reel Research Desk running at http://localhost:${PORT}`);
+  console.log(`IGFU Scraper running at http://localhost:${PORT}`);
 });
 
 function readBody(req) {

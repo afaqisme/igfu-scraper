@@ -12,7 +12,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and sho
 - Select the reels worth studying.
 - Pull transcripts only for selected reels.
 - Paste individual or bulk reel links for direct transcription.
-- Export checked creator results as CSV or Markdown.
+- Export selected creator results as CSV or Markdown.
 - Export transcript batches as CSV or Markdown.
 - Keep API keys out of source code by using browser storage or Netlify environment variables.
 
@@ -160,3 +160,7 @@ CLI outputs are written to `outputs/`, which is ignored by Git.
 - Browser-entered Apify keys stay in local storage and are sent only when a user runs a request.
 - Hosted deployments can use `APIFY_TOKEN` as a server-side environment variable.
 - `.env`, build output, dependencies, generated outputs, and Python cache files are ignored by Git.
+
+## License
+
+MIT

@@ -1,10 +1,12 @@
 {
   "name": "igfu-scraper",
   "version": "1.0.0",
-  "description": "Creator intelligence tool for scraping Instagram Reels, Facebook Reels, and YouTube Shorts metadata, transcripts, captions, views, and export-ready research tables.",
+  "description": "Creator intelligence tool for scraping Instagram Reels, Facebook Reels, TikTok videos, and YouTube Shorts metadata, transcripts, captions, views, and export-ready research tables.",
   "keywords": [
     "instagram reels scraper",
     "facebook reels scraper",
+    "tiktok scraper",
+    "tiktok transcript",
     "youtube shorts transcript",
     "creator research tool",
     "social media analytics",
