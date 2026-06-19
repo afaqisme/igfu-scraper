@@ -11,6 +11,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and sho
 - Rank creator reels by views.
 - Select the reels worth studying.
 - Pull transcripts only for selected reels.
+- Optionally include engagement metrics and media links when actors return them.
 - Paste individual or bulk reel links for direct transcription.
 - Export selected creator results as CSV or Markdown.
 - Export transcript batches as CSV or Markdown.
@@ -40,6 +41,8 @@ Use this when you want to study a creator and find their strongest recent posts.
 7. Export selected rows as CSV or Markdown.
 
 Advanced actor settings are available inside the creator workflow. When enabled, they override the simple date/results controls and send platform-specific actor fields directly to Apify, such as Instagram `resultsLimit`, TikTok `resultsPerPage`, and YouTube Shorts `maxResultsShorts`.
+
+Facebook creator research currently stays in simple mode because the verified Facebook actor input exposes only `startUrls` for this workflow. Facebook output can still include views, descriptions, video URLs, thumbnails, and any engagement fields returned by the actor.
 
 ### Link Transcriber
 

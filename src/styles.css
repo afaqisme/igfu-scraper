@@ -577,6 +577,10 @@ select {
   background: #fffaf3;
 }
 
+.metricsToggle {
+  margin-top: 12px;
+}
+
 .advancedToggle {
   display: flex;
   align-items: center;
@@ -832,7 +836,7 @@ select {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1080px;
+  min-width: 1220px;
 }
 
 th,
@@ -855,6 +859,25 @@ td:nth-child(3) {
   font-weight: 900;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.mediaLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 130px;
+}
+
+.mediaLinks a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid #eadfd2;
+  border-radius: 999px;
+  background: #fffaf3;
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .transcriptCell {

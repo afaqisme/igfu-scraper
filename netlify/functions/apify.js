@@ -161,6 +161,11 @@ function normalizeInstagram(item) {
     plays: pick(item, "videoPlayCount", "playCount", "plays"),
     likes: pick(item, "likesCount", "likeCount", "likes"),
     comments: pick(item, "commentsCount", "commentCount", "comments"),
+    shares: pick(item, "sharesCount", "shareCount", "shares"),
+    duration: pick(item, "videoDuration", "duration", "durationSec"),
+    videoUrl: pick(item, "videoUrl", "video_url", "downloadUrl", "videoDownloadUrl", "mediaUrl"),
+    audioUrl: pick(item, "audioUrl", "audio_url"),
+    thumbnail: pick(item, "displayUrl", "thumbnailUrl", "thumbnail", "imageUrl", "coverUrl"),
     transcript: pick(item, "transcript", "text", "transcription", "transcriptText", "fullTranscript", "fullText"),
   };
 }
@@ -174,9 +179,14 @@ function normalizeFacebook(item) {
     date: pick(reel, "creation_time", "timestamp", "postedAt", "date"),
     caption: pick(reel, "description", "caption", "text"),
     views: pick(reel, "view_count", "views", "viewCount"),
-    plays: null,
+    plays: pick(reel, "play_count", "playCount", "plays"),
     likes: pick(reel, "likes", "like_count", "likeCount"),
     comments: pick(reel, "comments", "comment_count", "commentCount"),
+    shares: pick(reel, "shares", "share_count", "shareCount"),
+    duration: pick(reel, "play_time_in_ms", "duration", "durationSec"),
+    videoUrl: pick(reel, "video_url", "videoUrl") || pick(item, "video_url", "videoUrl"),
+    audioUrl: pick(reel, "audio_url", "audioUrl") || pick(item, "audio_url", "audioUrl"),
+    thumbnail: pick(reel, "thumbnail", "thumbnailUrl", "image", "imageUrl") || pick(item, "thumbnail", "thumbnailUrl"),
     transcript: pick(item, "transcript", "transcriptText", "text") || pick(reel, "transcript", "transcriptText", "text"),
   };
 }
@@ -192,6 +202,11 @@ function normalizeTikTok(item) {
     plays: pick(item, "playCount", "viewCount", "views"),
     likes: pick(item, "diggCount", "likeCount", "likes"),
     comments: pick(item, "commentCount", "comments"),
+    shares: pick(item, "shareCount", "shares"),
+    duration: pick(item, "duration", "durationSec") || pick(item.videoMeta, "duration"),
+    videoUrl: pick(item, "videoUrl", "downloadUrl") || pick(item.videoMeta, "downloadAddr", "playAddr"),
+    audioUrl: pick(item, "musicUrl") || pick(item.musicMeta, "playUrl", "musicUrl"),
+    thumbnail: pick(item, "coverUrl", "thumbnail", "thumbnailUrl") || pick(item.videoMeta, "coverUrl", "originCoverUrl"),
     transcript: pick(item, "transcript", "textTranscript", "captionText", "fullText"),
   };
 }
@@ -207,6 +222,11 @@ function normalizeYouTube(item) {
     plays: null,
     likes: pick(item, "likes", "likeCount", "likesCount"),
     comments: pick(item, "comments", "commentsCount", "commentCount"),
+    shares: pick(item, "shares", "shareCount"),
+    duration: pick(item, "duration", "durationSec", "lengthText"),
+    videoUrl: pick(item, "videoUrl", "url", "shortUrl"),
+    audioUrl: pick(item, "audioUrl", "audio_url"),
+    thumbnail: pick(item, "thumbnailUrl", "thumbnail", "imageUrl"),
     transcript: pick(item, "transcript", "text", "fullText"),
   };
 }

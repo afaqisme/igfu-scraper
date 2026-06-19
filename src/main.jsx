@@ -151,7 +151,7 @@ function csvEscape(value) {
 }
 
 function toCsv(rows) {
-  const fields = ["date", "url", "views", "caption", "transcript"];
+  const fields = Object.keys(rows[0] || { date: "", url: "", views: "", caption: "", transcript: "" });
   return [fields.join(","), ...rows.map((row) => fields.map((field) => csvEscape(row[field])).join(","))].join("\n");
 }
 
@@ -163,6 +163,15 @@ function toMarkdown(rows) {
         "",
         `URL: ${row.url || ""}`,
         "",
+        row.views ? `Views: ${row.views}` : "",
+        row.likes ? `Likes: ${row.likes}` : "",
+        row.comments ? `Comments: ${row.comments}` : "",
+        row.shares ? `Shares: ${row.shares}` : "",
+        row.plays ? `Plays: ${row.plays}` : "",
+        row.duration ? `Duration: ${row.duration}` : "",
+        row.videoUrl ? `Video URL: ${row.videoUrl}` : "",
+        row.audioUrl ? `Audio URL: ${row.audioUrl}` : "",
+        row.thumbnail ? `Thumbnail: ${row.thumbnail}` : "",
         row.caption ? `Caption: ${row.caption}` : "",
         "",
         row.transcript || "",
@@ -214,6 +223,7 @@ function App() {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [advancedEnabled, setAdvancedEnabled] = useState(false);
   const [advancedSettings, setAdvancedSettings] = useState(ADVANCED_DEFAULTS);
+  const [includeMetrics, setIncludeMetrics] = useState(false);
   const [metadataRows, setMetadataRows] = useState([]);
   const [selected, setSelected] = useState({});
   const [creatorBusy, setCreatorBusy] = useState(false);
@@ -361,8 +371,18 @@ function App() {
       date: normalizeDate(row.date),
       url: row.url,
       views: row.views,
-      caption: row.caption,
       transcript: row.transcript,
+      ...(includeMetrics ? {
+        likes: row.likes,
+        comments: row.comments,
+        shares: row.shares,
+        plays: row.plays,
+        duration: row.duration,
+        videoUrl: row.videoUrl,
+        audioUrl: row.audioUrl,
+        thumbnail: row.thumbnail,
+      } : {}),
+      caption: row.caption,
     }));
     if (format === "csv") download("reel-research.csv", toCsv(safeRows), "text/csv");
     else download("reel-research.md", toMarkdown(safeRows), "text/markdown");
@@ -502,6 +522,14 @@ function App() {
             Cost-safe mode: IGFU requests up to {Number(creatorForm.resultLimit) || 30} posts from the actor.{" "}
             {Number(creatorForm.days) ? `It keeps posts from the last ${Number(creatorForm.days)} days when dates are returned.` : "No date filter is applied."}
           </p>
+          <label className="toggleField metricsToggle">
+            <input
+              type="checkbox"
+              checked={includeMetrics}
+              onChange={(event) => setIncludeMetrics(event.target.checked)}
+            />
+            <span>Include engagement metrics and media links in table/export</span>
+          </label>
           <div className="advancedBox">
             <button className="advancedToggle" type="button" onClick={() => setAdvancedOpen((open) => !open)}>
               <span>
@@ -567,7 +595,7 @@ function App() {
           </div> : null}
         </div>
         <RunStatus label={transcribeStatus} />
-        <ResultTable rows={metadataRows} selected={selected} setSelected={setSelected} toggleAll={toggleAll} selectedCount={selectedRows.length} />
+        <ResultTable rows={metadataRows} selected={selected} setSelected={setSelected} toggleAll={toggleAll} selectedCount={selectedRows.length} includeMetrics={includeMetrics} />
       </section>
         </>
       ) : (
@@ -589,6 +617,14 @@ function App() {
               placeholder="Paste one Instagram, Facebook, TikTok, or YouTube Shorts URL per line"
               rows={6}
             />
+          </label>
+          <label className="toggleField metricsToggle">
+            <input
+              type="checkbox"
+              checked={includeMetrics}
+              onChange={(event) => setIncludeMetrics(event.target.checked)}
+            />
+            <span>Include engagement metrics and media links in exports</span>
           </label>
           <ActionRow>
             <button className="primary" onClick={transcribeLinks} disabled={linkBusy}>
@@ -785,7 +821,7 @@ function RunStatus({ label }) {
   return <span className="runStatus">{label}</span>;
 }
 
-function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) {
+function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount, includeMetrics }) {
   const [sortKey, setSortKey] = useState("views");
   const sortedRows = useMemo(() => {
     return [...rows].sort((a, b) => {
@@ -824,6 +860,12 @@ function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) 
             <th></th>
             <th>Date</th>
             <th>Views</th>
+            {includeMetrics ? <th>Likes</th> : null}
+            {includeMetrics ? <th>Comments</th> : null}
+            {includeMetrics ? <th>Shares</th> : null}
+            {includeMetrics ? <th>Plays</th> : null}
+            {includeMetrics ? <th>Duration</th> : null}
+            {includeMetrics ? <th>Media</th> : null}
             <th>Transcript</th>
             <th>Reel link</th>
             <th>Caption</th>
@@ -843,6 +885,12 @@ function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) 
               </td>
               <td>{normalizeDate(row.date)}</td>
               <td>{Number(row.views || 0).toLocaleString()}</td>
+              {includeMetrics ? <td>{formatMetric(row.likes)}</td> : null}
+              {includeMetrics ? <td>{formatMetric(row.comments)}</td> : null}
+              {includeMetrics ? <td>{formatMetric(row.shares)}</td> : null}
+              {includeMetrics ? <td>{formatMetric(row.plays)}</td> : null}
+              {includeMetrics ? <td>{row.duration || ""}</td> : null}
+              {includeMetrics ? <td><MediaLinks row={row} /></td> : null}
               <td className={row.transcript ? "transcriptCell" : "mutedCell"}>{row.transcript || "Not pulled yet"}</td>
               <td>
                 <a href={row.url} target="_blank" rel="noreferrer">
@@ -858,6 +906,29 @@ function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) 
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function formatMetric(value) {
+  if (value === undefined || value === null || value === "") return "";
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toLocaleString() : value;
+}
+
+function MediaLinks({ row }) {
+  const links = [
+    ["Video", row.videoUrl],
+    ["Audio", row.audioUrl],
+    ["Thumb", row.thumbnail],
+  ].filter(([, url]) => url);
+
+  if (!links.length) return <span className="mutedCell">Not returned</span>;
+  return (
+    <div className="mediaLinks">
+      {links.map(([label, url]) => (
+        <a key={label} href={url} target="_blank" rel="noreferrer">{label}</a>
+      ))}
     </div>
   );
 }
