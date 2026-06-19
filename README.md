@@ -150,29 +150,9 @@ python .\apify_scraper.py ig-batch --creator https://www.instagram.com/itsemilyh
 
 CLI outputs are written to `outputs/`, which is ignored by Git.
 
-## Suggested GitHub Description
+## Security
 
-Creator intelligence tool for scraping Instagram Reels, Facebook Reels, and YouTube Shorts metadata, transcripts, captions, views, and export-ready research tables.
-
-## Suggested GitHub Topics
-
-```text
-instagram-reels
-facebook-reels
-youtube-shorts
-apify
-react
-vite
-netlify
-social-media-analytics
-content-research
-transcript-extractor
-creator-tools
-```
-
-## Security Notes
-
-- `.env`, build output, `node_modules`, generated outputs, and Python cache files are ignored.
-- API keys should be entered in the UI or configured as deployment environment variables.
-- If an API key was ever pasted into chat or logs, rotate it before public release.
-
+- API keys are not stored in source code.
+- Browser-entered Apify keys stay in local storage and are sent only when a user runs a request.
+- Hosted deployments can use `APIFY_TOKEN` as a server-side environment variable.
+- `.env`, build output, dependencies, generated outputs, and Python cache files are ignored by Git.
