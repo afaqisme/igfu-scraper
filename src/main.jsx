@@ -14,7 +14,9 @@ import {
   Save,
   Search,
   Send,
+  Settings,
   Square,
+  X,
 } from "lucide-react";
 import "./styles.css";
 
@@ -30,6 +32,9 @@ const initialCreator = {
   resultLimit: 30,
   days: 30,
 };
+
+const DAY_OPTIONS = [7, 30, 90, 180, 365];
+const RESULT_OPTIONS = [10, 20, 30, 50, 100];
 
 function splitLines(text) {
   return text
@@ -145,6 +150,7 @@ function getScanLimit(resultLimit, days) {
 
 function App() {
   const [activeTab, setActiveTab] = useState("creator");
+  const [apiModalOpen, setApiModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("apify_api_key") || "");
   const [apiSaved, setApiSaved] = useState(false);
   const [linkText, setLinkText] = useState("https://www.facebook.com/reel/1746088140075462");
@@ -166,6 +172,7 @@ function App() {
     const analyzed = metadataRows.filter((row) => row.transcript).map((row) => ({ ...row, source: "analysis" }));
     return [...linked, ...analyzed];
   }, [linkRows, metadataRows]);
+  const detectedCreatorPlatform = detectPlatform(creatorForm.creator);
 
   function saveApiKey() {
     const trimmed = apiKey.trim();
@@ -180,7 +187,7 @@ function App() {
     if (!urls.length) return;
     const groups = groupUrlsByPlatform(urls);
     if (groups.unknown.length) {
-      setLinkStatus("Only Instagram, Facebook, and YouTube URLs are supported");
+      setLinkStatus("Only Instagram, Facebook, TikTok, and YouTube URLs are supported");
       return;
     }
     setLinkBusy(true);
@@ -210,11 +217,11 @@ function App() {
   async function analyzeCreator() {
     const platform = detectPlatform(creatorForm.creator);
     if (!platform) {
-      setCreatorStatus("Paste an Instagram, Facebook, or YouTube creator URL first");
+      setCreatorStatus("Paste an Instagram, Facebook, TikTok, or YouTube creator URL first");
       return;
     }
     setCreatorBusy(true);
-    setCreatorStatus("STARTING");
+    setCreatorStatus("Scanning creator page...");
     setMetadataRows([]);
     setSelected({});
     try {
@@ -228,11 +235,11 @@ function App() {
           days: Number(creatorForm.days) || null,
         },
         apiKey,
-        onStatus: setCreatorStatus,
+        onStatus: (status) => setCreatorStatus(status === "RUNNING" ? "Scanning and ranking reels..." : status),
       });
       setMetadataRows(data.items);
       setSelected({});
-      setCreatorStatus("DONE");
+      setCreatorStatus(data.items.length ? `Scan complete: ${data.items.length} results ranked` : "No matching reels found");
     } catch (error) {
       setCreatorStatus(error.message);
     } finally {
@@ -262,7 +269,7 @@ function App() {
           workflow: "transcript",
           input: { urls: groups[platform] },
           apiKey,
-          onStatus: (status) => setTranscribeStatus(`${PLATFORMS[platform].label}: ${status}`),
+          onStatus: (status) => setTranscribeStatus(`${PLATFORMS[platform].label}: ${status === "RUNNING" ? "pulling transcripts..." : status}`),
         });
         transcriptItems.push(...data.items);
       }
@@ -309,27 +316,12 @@ function App() {
             <strong>IGFU Scraper</strong>
           </div>
           <div className="topApi">
-            <div className="settingsTitle compact">
-              <KeyRound size={16} />
-              <div>
-                <strong>Apify API key</strong>
-                <span>{apiKey.trim() ? "Saved in this browser" : "Runs creator scans and transcripts"}</span>
-              </div>
-            </div>
-            <div className="settingsInput compact">
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                placeholder="Paste your Apify API key"
-                autoComplete="off"
-                aria-label="Apify API key for running creator scans and transcript actors"
-              />
-              <button className="ghost" onClick={saveApiKey}>
-                <Save size={16} />
-                {apiSaved ? "Saved" : "Save"}
-              </button>
-            </div>
+            <span className={apiKey.trim() ? "apiDot connected" : "apiDot"} aria-hidden="true" />
+            <span>{apiKey.trim() ? "API connected" : "API key required"}</span>
+            <button className="ghost apiButton" onClick={() => setApiModalOpen(true)}>
+              <Settings size={16} />
+              API Settings
+            </button>
           </div>
         </nav>
 
@@ -341,11 +333,46 @@ function App() {
               <span>TikTok</span>
               <span>YouTube Shorts</span>
             </div>
-            <h1>Creator Intelligence That Finds Winning Ideas And Pulls Scripts</h1>
-            <p className="headerCopy">Turn creator pages and reel links into a ranked swipe file with views, captions, transcripts, and export-ready notes.</p>
+            <h1>Find Winning Creator Content. Pull the Scripts.</h1>
+            <p className="headerCopy">Scan creator pages, rank their best-performing reels, and export captions, transcripts, and research notes.</p>
           </div>
         </div>
       </header>
+
+      {apiModalOpen ? (
+        <div className="modalBackdrop" role="presentation">
+          <section className="apiModal" role="dialog" aria-modal="true" aria-labelledby="api-modal-title">
+            <div className="modalHead">
+              <div>
+                <p className="modalKicker">Setup</p>
+                <h2 id="api-modal-title">Apify API key</h2>
+              </div>
+              <button className="iconButton" onClick={() => setApiModalOpen(false)} aria-label="Close API settings">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="fieldHint">Your Apify key runs creator scans and transcript actors. It is saved only in this browser.</p>
+            <label className="fieldLabel">
+              <span>API key</span>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(event) => setApiKey(event.target.value)}
+                placeholder="Paste your Apify API key"
+                autoComplete="off"
+                aria-label="Apify API key for running creator scans and transcript actors"
+              />
+            </label>
+            <ActionRow>
+              <button className="primary" onClick={saveApiKey}>
+                <Save size={16} />
+                {apiSaved ? "Saved" : "Save key"}
+              </button>
+              <button className="ghost" onClick={() => setApiModalOpen(false)}>Done</button>
+            </ActionRow>
+          </section>
+        </div>
+      ) : null}
 
       <section className="workspaceHeader">
         <div>
@@ -353,10 +380,12 @@ function App() {
         </div>
         <div className="modeTabs" role="tablist" aria-label="Research mode">
           <button className={activeTab === "creator" ? "tabActive" : ""} onClick={() => setActiveTab("creator")} role="tab" aria-selected={activeTab === "creator"}>
-            Creator research
+            <strong>Creator Research</strong>
+            <span>Find and rank top posts</span>
           </button>
           <button className={activeTab === "links" ? "tabActive" : ""} onClick={() => setActiveTab("links")} role="tab" aria-selected={activeTab === "links"}>
-            Link transcriber
+            <strong>Link Transcriber</strong>
+            <span>Pull scripts from URLs</span>
           </button>
         </div>
       </section>
@@ -365,40 +394,45 @@ function App() {
         <>
       <section className="workspace single">
         <Panel title="Find a creator's best reels" icon={<Search size={18} />}>
-          <p className="fieldHint">Use this when you want top posts from an Instagram, Facebook, TikTok, or YouTube Shorts creator before choosing what to transcribe.</p>
-          <div className="capabilityLine">
-            <span>Ranks by views</span>
-            <span>Filters by date</span>
-            <span>Captions or titles included</span>
+          <p className="fieldHint">Paste a creator page. IGFU scans recent posts, filters the time window, and ranks the strongest results by views.</p>
+          <div className="stepList" aria-label="Creator research steps">
+            <span><strong>1</strong>Add creator page</span>
+            <span><strong>2</strong>Choose scan range</span>
+            <span><strong>3</strong>Scan and rank</span>
           </div>
           <label className="fieldLabel">
-            <span>Creator reels/shorts page</span>
+            <span>Creator profile or reels URL</span>
             <input
               value={creatorForm.creator}
               onChange={(event) => setCreatorForm((form) => ({ ...form, creator: event.target.value }))}
               placeholder="Instagram, Facebook, TikTok, or YouTube creator URL"
             />
           </label>
+          <p className={detectedCreatorPlatform ? "inlineValidation valid" : "inlineValidation"}>
+            {detectedCreatorPlatform ? `${PLATFORMS[detectedCreatorPlatform].label} creator link detected` : "Paste a public creator URL from a supported platform"}
+          </p>
           <div className="compactGrid">
             <label>
-              <span>Look back (days)</span>
-              <input
-                type="number"
-                min="1"
-                max="365"
+              <span>Scan posts from the last</span>
+              <select
                 value={creatorForm.days}
                 onChange={(event) => setCreatorForm((form) => ({ ...form, days: event.target.value }))}
-              />
+              >
+                {DAY_OPTIONS.map((days) => (
+                  <option key={days} value={days}>{days} days</option>
+                ))}
+              </select>
             </label>
             <label>
-              <span>Show winners (max reels)</span>
-              <input
-                type="number"
-                min="1"
-                max="100"
+              <span>Maximum results</span>
+              <select
                 value={creatorForm.resultLimit}
                 onChange={(event) => setCreatorForm((form) => ({ ...form, resultLimit: event.target.value }))}
-              />
+              >
+                {RESULT_OPTIONS.map((count) => (
+                  <option key={count} value={count}>{count} results</option>
+                ))}
+              </select>
             </label>
           </div>
           <p className="fieldHint">
@@ -406,9 +440,9 @@ function App() {
             {Number(creatorForm.resultLimit) || 30} winners. If only 10 posts match, you get 10.
           </p>
           <ActionRow>
-            <button className="primary" onClick={analyzeCreator} disabled={creatorBusy}>
+            <button className="primary formPrimary" onClick={analyzeCreator} disabled={creatorBusy}>
               {creatorBusy ? <Loader2 className="spin" size={17} /> : <Search size={17} />}
-              Find winning reels
+              Scan and rank reels
             </button>
             <RunStatus label={creatorStatus} />
           </ActionRow>
@@ -420,7 +454,7 @@ function App() {
           <div>
             <h2>Winning reels</h2>
           </div>
-          <div className="toolbar">
+          {metadataRows.length ? <div className="toolbar">
             <button className="ghost" onClick={() => exportRows(selectedRows, "csv")} disabled={!selectedRows.length}>
               <FileDown size={16} />
               CSV
@@ -429,11 +463,11 @@ function App() {
               <Download size={16} />
               Markdown
             </button>
-            <button className="primary" onClick={transcribeSelected} disabled={!metadataRows.length || transcribeBusy}>
+            {selectedRows.length ? <button className="primary" onClick={transcribeSelected} disabled={transcribeBusy}>
               {transcribeBusy ? <Loader2 className="spin" size={17} /> : <Send size={17} />}
-              Transcribe selected reels
-            </button>
-          </div>
+              Transcribe {selectedRows.length} selected
+            </button> : null}
+          </div> : null}
         </div>
         <RunStatus label={transcribeStatus} />
         <ResultTable rows={metadataRows} selected={selected} setSelected={setSelected} toggleAll={toggleAll} selectedCount={selectedRows.length} />
@@ -455,7 +489,7 @@ function App() {
             <textarea
               value={linkText}
               onChange={(event) => setLinkText(event.target.value)}
-              placeholder="Paste one Instagram, Facebook, or YouTube Shorts URL per line"
+              placeholder="Paste one Instagram, Facebook, TikTok, or YouTube Shorts URL per line"
               rows={6}
             />
           </label>
@@ -502,7 +536,11 @@ function App() {
               />
             ))
           ) : (
-            <EmptyState message="Paste links here to build your script bank." />
+            <EmptyState
+              title="Your transcripts will appear here"
+              message="Paste reel links above to pull scripts and export a batch."
+              preview={false}
+            />
           )}
         </div>
       </section>
@@ -546,7 +584,15 @@ function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) 
     });
   }, [rows, sortKey]);
 
-  if (!rows.length) return <EmptyState compact message="Run a creator scan to see ranked reels here." />;
+  if (!rows.length) {
+    return (
+      <EmptyState
+        compact
+        title="Your ranked reels will appear here"
+        message="Paste a creator page above to find the strongest recent content."
+      />
+    );
+  }
 
   return (
     <div className="tableWrap">
@@ -557,7 +603,7 @@ function ResultTable({ rows, selected, setSelected, toggleAll, selectedCount }) 
         </button>
         <Database size={15} />
         <span>{rows.length} reels</span>
-        <span>{selectedCount} checked</span>
+        <span>{selectedCount} selected</span>
         <ArrowDownUp size={15} />
         <button className={sortKey === "views" ? "sortActive" : ""} onClick={() => setSortKey("views")}>Views</button>
         <button className={sortKey === "date" ? "sortActive" : ""} onClick={() => setSortKey("date")}>Date</button>
@@ -634,10 +680,25 @@ function TranscriptCard({ row, onDelete }) {
   );
 }
 
-function EmptyState({ compact = false, message = "No results yet." }) {
+function EmptyState({
+  compact = false,
+  title = "Your ranked reels will appear here",
+  message = "Paste a creator page above to find the strongest recent content.",
+  preview = true,
+}) {
   return (
     <div className={compact ? "empty compact" : "empty"}>
+      <strong>{title}</strong>
       <p>{message}</p>
+      {preview ? (
+        <div className="emptyPreview" aria-hidden="true">
+          <span>Rank</span>
+          <span>Reel</span>
+          <span>Views</span>
+          <span>Date</span>
+          <span>Transcript</span>
+        </div>
+      ) : null}
     </div>
   );
 }

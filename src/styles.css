@@ -28,6 +28,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -67,7 +68,7 @@ a:hover {
 
 .topbar {
   display: grid;
-  grid-template-columns: auto 1fr minmax(340px, 430px);
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 14px;
   max-width: 1360px;
@@ -183,16 +184,36 @@ a:hover {
 }
 
 .topApi {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 9px;
+  display: inline-flex;
+  gap: 10px;
   align-items: center;
   justify-self: end;
-  width: 100%;
-  padding: 8px;
-  border: 1px solid rgba(240, 216, 197, 0.9);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.76);
+  min-height: 44px;
+  padding: 6px 6px 6px 12px;
+  border: 1px solid rgba(226, 214, 203, 0.95);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #5e4636;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.apiDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #b45309;
+  box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.12);
+}
+
+.apiDot.connected {
+  background: #15803d;
+  box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.12);
+}
+
+.apiButton {
+  min-height: 34px;
+  border-radius: 999px;
 }
 
 .settingsTitle {
@@ -214,17 +235,6 @@ a:hover {
   margin-top: 2px;
   color: var(--muted);
   font-size: 0.84rem;
-}
-
-.settingsTitle.compact strong {
-  font-size: 0.78rem;
-}
-
-.settingsTitle.compact span {
-  display: block;
-  max-width: 150px;
-  font-size: 0.68rem;
-  line-height: 1.15;
 }
 
 .settingsInput {
@@ -261,6 +271,58 @@ a:hover {
   line-height: 1.05;
 }
 
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(36, 22, 15, 0.36);
+}
+
+.apiModal {
+  width: min(520px, 100%);
+  padding: 20px;
+  border: 1px solid #e0d4c8;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(36, 22, 15, 0.24);
+}
+
+.modalHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.modalHead h2 {
+  margin: 2px 0 0;
+  color: var(--ink);
+  font-size: 1.45rem;
+}
+
+.modalKicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ded2c7;
+  border-radius: 12px;
+  background: #fffaf3;
+  color: var(--ink);
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -276,22 +338,39 @@ a:hover {
 }
 
 .modeTabs {
-  display: inline-flex;
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid #ead8c6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(520px, 100%);
+  max-width: 100%;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid #e1d6ca;
   border-radius: 14px;
   background: #ffffff;
 }
 
 .modeTabs button {
-  min-height: 38px;
-  padding: 0 14px;
+  display: grid;
+  gap: 3px;
+  min-height: 58px;
+  padding: 8px 14px;
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
   color: #5b4b40;
+  text-align: left;
+}
+
+.modeTabs button strong {
+  color: inherit;
+  font-size: 0.95rem;
   font-weight: 900;
+}
+
+.modeTabs button span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .modeTabs button.tabActive {
@@ -301,9 +380,13 @@ a:hover {
   box-shadow: 2px 2px 0 #111111;
 }
 
+.modeTabs button.tabActive span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .panel {
   padding: 20px;
-  border: 1px solid #e5c4a9;
+  border: 1px solid #e1d6ca;
   border-radius: 16px;
   background: var(--surface);
   box-shadow: 0 22px 54px rgba(83, 48, 20, 0.1);
@@ -369,6 +452,37 @@ a:hover {
   margin-bottom: 12px;
 }
 
+.stepList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.stepList span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #5e4636;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.stepList strong {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 0.72rem;
+}
+
 .capabilityLine span {
   display: inline-flex;
   align-items: center;
@@ -384,9 +498,10 @@ a:hover {
 }
 
 textarea,
-input {
+input,
+select {
   width: 100%;
-  border: 1px solid #d8c7b7;
+  border: 1px solid #d9cfc5;
   border-radius: 12px;
   background: #fffdf9;
   color: var(--ink);
@@ -415,10 +530,29 @@ input::placeholder {
 }
 
 textarea:focus,
-input:focus {
+input:focus,
+select:focus {
   border-color: var(--orange);
   background: #ffffff;
   box-shadow: 0 0 0 4px rgba(255, 90, 0, 0.14);
+}
+
+select {
+  min-height: 46px;
+  padding: 0 13px;
+  appearance: none;
+}
+
+.inlineValidation {
+  min-height: 20px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.inlineValidation.valid {
+  color: #166534;
 }
 
 .compactGrid {
@@ -448,7 +582,7 @@ input:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 42px;
+  min-height: 44px;
   border-radius: 12px;
   padding: 0 14px;
   border: 1px solid transparent;
@@ -458,6 +592,12 @@ input:focus {
     background 160ms ease,
     border-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+.formPrimary {
+  min-width: 240px;
+  min-height: 48px;
+  font-size: 0.98rem;
 }
 
 .primary {
@@ -479,7 +619,7 @@ input:focus {
 .ghost {
   background: #ffffff;
   color: var(--ink);
-  border-color: #d9cabb;
+  border-color: #ded2c7;
 }
 
 .ghost:hover {
@@ -492,7 +632,7 @@ input:focus {
   align-items: center;
   min-height: 34px;
   padding: 0 12px;
-  border: 1px solid #f0c9aa;
+  border: 1px solid #e3d6ca;
   border-radius: 999px;
   color: #6e2f11;
   background: var(--orange-soft);
@@ -510,7 +650,7 @@ input:focus {
 }
 
 .resultsBand {
-  background: #fffaf3;
+  background: #ffffff;
 }
 
 .transcriptBand {
@@ -698,12 +838,40 @@ td:nth-child(3) {
 
 .empty {
   display: grid;
-  place-items: center;
+  align-content: center;
+  gap: 12px;
   min-height: 180px;
-  border: 1px dashed #dfc8b1;
+  padding: 22px;
+  border: 1px dashed #d9cfc5;
   border-radius: 16px;
   color: var(--muted);
   background: #fffaf3;
+}
+
+.empty p {
+  margin: 0;
+}
+
+.empty strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.emptyPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.emptyPreview span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #6f6258;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .empty.compact {
