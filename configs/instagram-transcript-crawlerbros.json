@@ -1,0 +1,16 @@
+{
+  "actor": "crawlerbros/instagram-transcript-scraper",
+  "purpose": "Fallback transcript extraction for selected Instagram reels/posts.",
+  "input": {
+    "videoUrls": [
+      "https://www.instagram.com/p/DYuY53MOdSu/"
+    ],
+    "transcriptionMethod": "auto",
+    "whisperModel": "base"
+  },
+  "notes": [
+    "Apify page lists pricing from $5.00 per 1,000 results.",
+    "Use async polling.",
+    "Verified on https://www.instagram.com/p/DYuY53MOdSu/ with transcriptionMethod=auto; transcript text was returned in fullText."
+  ]
+}

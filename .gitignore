@@ -1,0 +1,8 @@
+.env
+*.env
+node_modules/
+dist/
+.netlify/
+outputs/
+__pycache__/
+*.pyc

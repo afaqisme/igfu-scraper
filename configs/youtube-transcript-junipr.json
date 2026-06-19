@@ -1,0 +1,26 @@
+{
+  "actor": "junipr/youtube-transcript-extractor",
+  "purpose": "Primary YouTube Shorts/video transcript actor.",
+  "input": {
+    "urls": [
+      "https://www.youtube.com/shorts/hMAU8do7azU"
+    ]
+  },
+  "verified": {
+    "date": "2026-06-19",
+    "pricingObserved": "from $3.25 / 1,000 transcript extracteds",
+    "worksFor": [
+      "YouTube Shorts URL",
+      "YouTube watch URL"
+    ],
+    "returnedFields": [
+      "videoUrl",
+      "videoId",
+      "title",
+      "channelName",
+      "viewCount",
+      "transcript",
+      "segments"
+    ]
+  }
+}

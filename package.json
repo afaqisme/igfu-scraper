@@ -1,0 +1,33 @@
+{
+  "name": "igfu-scraper",
+  "version": "1.0.0",
+  "description": "Creator intelligence tool for scraping Instagram Reels, Facebook Reels, and YouTube Shorts metadata, transcripts, captions, views, and export-ready research tables.",
+  "keywords": [
+    "instagram reels scraper",
+    "facebook reels scraper",
+    "youtube shorts transcript",
+    "creator research tool",
+    "social media analytics",
+    "reel transcript extractor",
+    "apify scraper",
+    "content research",
+    "viral reels analysis",
+    "netlify react app"
+  ],
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build && node local-server.mjs",
+    "vite": "vite",
+    "build": "vite build",
+    "start": "npm run build && node local-server.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vite": "^8.0.16"
+  }
+}

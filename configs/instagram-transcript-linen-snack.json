@@ -1,0 +1,14 @@
+{
+  "actor": "linen_snack/instagram-reel-transcript-ai-extractor",
+  "purpose": "Alternative fallback transcript actor; also advertises channel scraping.",
+  "input": {
+    "reelUrls": [
+      "https://www.instagram.com/p/DYuY53MOdSu/"
+    ],
+    "usernames": []
+  },
+  "notes": [
+    "Apify page says 10 free reels included.",
+    "Use this if Crawler Bros is too slow or fails on your samples."
+  ]
+}

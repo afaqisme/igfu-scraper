@@ -1,0 +1,25 @@
+{
+  "actor": "unseenuser/fb-reels",
+  "purpose": "Primary Facebook page/profile reels metadata actor.",
+  "input": {
+    "startUrls": [
+      "https://www.facebook.com/ExplainedByVara/reels/"
+    ]
+  },
+  "verified": {
+    "date": "2026-06-18",
+    "worksFor": [
+      "Facebook page reels URL"
+    ],
+    "returnedFields": [
+      "url",
+      "creation_time",
+      "description",
+      "view_count",
+      "play_time_in_ms",
+      "video_url",
+      "thumbnail",
+      "author"
+    ]
+  }
+}

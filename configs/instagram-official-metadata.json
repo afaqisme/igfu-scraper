@@ -1,0 +1,32 @@
+{
+  "actor": "apify/instagram-reel-scraper",
+  "purpose": "Primary Instagram metadata and creator-reel discovery actor.",
+  "input": {
+    "username": [
+      "https://www.instagram.com/p/DYuY53MOdSu/"
+    ],
+    "resultsLimit": 1
+  },
+  "verified": {
+    "date": "2026-06-18",
+    "worksFor": [
+      "single Instagram post/reel URL",
+      "creator reels URL such as https://www.instagram.com/itsemilyhiggins/reels"
+    ],
+    "returnedFields": [
+      "caption",
+      "timestamp",
+      "ownerUsername",
+      "likesCount",
+      "commentsCount",
+      "videoViewCount",
+      "videoPlayCount",
+      "videoDuration",
+      "videoUrl",
+      "audioUrl"
+    ],
+    "missingInTest": [
+      "transcript"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "actor": "unseenuser/fb-transcript",
+  "purpose": "Primary Facebook reel transcript actor.",
+  "input": {
+    "startUrls": [
+      "https://www.facebook.com/reel/1746088140075462"
+    ]
+  },
+  "verified": {
+    "date": "2026-06-18",
+    "worksFor": [
+      "single public Facebook reel URL"
+    ],
+    "returnedFields": [
+      "video_url",
+      "transcript",
+      "transcriptText",
+      "transcriptAvailable",
+      "success"
+    ]
+  }
+}
