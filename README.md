@@ -11,7 +11,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and sho
 - Rank creator reels by views.
 - Select the reels worth studying.
 - Pull transcripts only for selected reels.
-- Optionally include engagement metrics and media links when actors return them.
+- Optionally include engagement metrics and media links in creator research exports when actors return them.
 - Paste individual or bulk reel links for direct transcription.
 - Export selected creator results as CSV or Markdown.
 - Export transcript batches as CSV or Markdown.

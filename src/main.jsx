@@ -366,13 +366,14 @@ function App() {
     setSelected(allSelected ? {} : Object.fromEntries(metadataRows.map((row) => [row.url, true])));
   }
 
-  function exportRows(rows, format) {
+  function exportRows(rows, format, options = {}) {
+    const shouldIncludeMetrics = Boolean(options.includeMetrics);
     const safeRows = rows.map((row) => ({
       date: normalizeDate(row.date),
       url: row.url,
       views: row.views,
       transcript: row.transcript,
-      ...(includeMetrics ? {
+      ...(shouldIncludeMetrics ? {
         likes: row.likes,
         comments: row.comments,
         shares: row.shares,
@@ -580,11 +581,11 @@ function App() {
             <h2>Winning reels</h2>
           </div>
           {metadataRows.length ? <div className="toolbar">
-            <button className="ghost" onClick={() => exportRows(selectedRows, "csv")} disabled={!selectedRows.length}>
+            <button className="ghost" onClick={() => exportRows(selectedRows, "csv", { includeMetrics })} disabled={!selectedRows.length}>
               <FileDown size={16} />
               CSV
             </button>
-            <button className="ghost" onClick={() => exportRows(selectedRows, "md")} disabled={!selectedRows.length}>
+            <button className="ghost" onClick={() => exportRows(selectedRows, "md", { includeMetrics })} disabled={!selectedRows.length}>
               <Download size={16} />
               Markdown
             </button>
@@ -617,14 +618,6 @@ function App() {
               placeholder="Paste one Instagram, Facebook, TikTok, or YouTube Shorts URL per line"
               rows={6}
             />
-          </label>
-          <label className="toggleField metricsToggle">
-            <input
-              type="checkbox"
-              checked={includeMetrics}
-              onChange={(event) => setIncludeMetrics(event.target.checked)}
-            />
-            <span>Include engagement metrics and media links in exports</span>
           </label>
           <ActionRow>
             <button className="primary" onClick={transcribeLinks} disabled={linkBusy}>
