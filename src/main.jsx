@@ -33,8 +33,8 @@ const initialCreator = {
   days: 30,
 };
 
-const DAY_OPTIONS = [7, 30, 90, 180, 365];
-const RESULT_OPTIONS = [10, 20, 30, 50, 100];
+const DAY_OPTIONS = [7, 15, 30, 60, 90, 180, 365];
+const RESULT_OPTIONS = [3, 5, 10, 20, 30, 50, 100];
 
 function splitLines(text) {
   return text
@@ -333,7 +333,7 @@ function App() {
               <span>TikTok</span>
               <span>YouTube Shorts</span>
             </div>
-            <h1>Find Winning Creator Content. Pull the Scripts.</h1>
+            <h1>Find winning creator content &amp; pull the scripts</h1>
             <p className="headerCopy">Scan creator pages, rank their best-performing reels, and export captions, transcripts, and research notes.</p>
           </div>
         </div>
