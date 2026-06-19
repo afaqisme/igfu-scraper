@@ -1,0 +1,14 @@
+{
+  "actor": "tictechid/anoxvanzi-transcriber",
+  "purpose": "Primary lower-cost Instagram transcript actor.",
+  "input": {
+    "start_urls": "https://www.instagram.com/p/DYuY53MOdSu/"
+  },
+  "notes": [
+    "Apify page lists pricing from $1.50 per 1,000 transcriptions.",
+    "Supports Instagram Reels, TikTok, YouTube Shorts, Facebook Reels, and Facebook Watch public videos.",
+    "The live input schema accepts start_urls as a string.",
+    "IGFU runs Instagram transcript batches URL by URL so every run matches the actor schema.",
+    "Output fields include sourceUrl, videoId, status, durationSec, transcript, detected_language, and timestamp."
+  ]
+}

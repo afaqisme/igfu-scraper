@@ -33,7 +33,7 @@ const initialCreator = {
   days: 30,
 };
 
-const DAY_OPTIONS = [7, 15, 30, 60, 90, 180, 365];
+const DAY_OPTIONS = [0, 7, 15, 30, 60, 90, 180, 365];
 const RESULT_OPTIONS = [3, 5, 10, 20, 30, 50, 100];
 
 function splitLines(text) {
@@ -75,6 +75,32 @@ async function runWorkflow({ platform, workflow, input, apiKey, onStatus }) {
     }
     await sleep(3500);
   }
+}
+
+async function runTranscriptUrls({ platform, urls, apiKey, onStatus }) {
+  if (platform === "instagram") {
+    const items = [];
+    for (const [index, url] of urls.entries()) {
+      const data = await runWorkflow({
+        platform,
+        workflow: "transcript",
+        input: { urls: [url] },
+        apiKey,
+        onStatus: (status) => onStatus?.(`${index + 1}/${urls.length} ${status}`),
+      });
+      items.push(...data.items);
+    }
+    return items;
+  }
+
+  const data = await runWorkflow({
+    platform,
+    workflow: "transcript",
+    input: { urls },
+    apiKey,
+    onStatus,
+  });
+  return data.items;
 }
 
 function download(filename, content, type = "text/plain") {
@@ -142,12 +168,6 @@ function groupUrlsByPlatform(urls) {
   );
 }
 
-function getScanLimit(resultLimit, days) {
-  const wanted = Number(resultLimit) || 30;
-  const lookback = Number(days) || 30;
-  return Math.min(250, Math.max(60, wanted * 4, lookback * 3));
-}
-
 function App() {
   const [activeTab, setActiveTab] = useState("creator");
   const [apiModalOpen, setApiModalOpen] = useState(false);
@@ -196,14 +216,13 @@ function App() {
       const results = [];
       for (const platform of ["instagram", "facebook", "tiktok", "youtube"]) {
         if (!groups[platform].length) continue;
-        const data = await runWorkflow({
+        const items = await runTranscriptUrls({
           platform,
-          workflow: "transcript",
-          input: { urls: groups[platform] },
+          urls: groups[platform],
           apiKey,
           onStatus: (status) => setLinkStatus(`${PLATFORMS[platform].label}: ${status}`),
         });
-        results.push(...data.items);
+        results.push(...items);
       }
       setLinkRows(results);
       setLinkStatus("DONE");
@@ -231,8 +250,7 @@ function App() {
         input: {
           creator: creatorForm.creator,
           resultLimit: Number(creatorForm.resultLimit) || 30,
-          scanLimit: getScanLimit(creatorForm.resultLimit, creatorForm.days),
-          days: Number(creatorForm.days) || null,
+          days: Number(creatorForm.days) || 0,
         },
         apiKey,
         onStatus: (status) => setCreatorStatus(status === "RUNNING" ? "Scanning and ranking reels..." : status),
@@ -264,14 +282,13 @@ function App() {
       const transcriptItems = [];
       for (const platform of ["instagram", "facebook", "tiktok", "youtube"]) {
         if (!groups[platform].length) continue;
-        const data = await runWorkflow({
+        const items = await runTranscriptUrls({
           platform,
-          workflow: "transcript",
-          input: { urls: groups[platform] },
+          urls: groups[platform],
           apiKey,
           onStatus: (status) => setTranscribeStatus(`${PLATFORMS[platform].label}: ${status === "RUNNING" ? "pulling transcripts..." : status}`),
         });
-        transcriptItems.push(...data.items);
+        transcriptItems.push(...items);
       }
       const byUrl = new Map(transcriptItems.map((item) => [canonicalUrl(item.url), item]));
       setMetadataRows((rows) =>
@@ -394,7 +411,7 @@ function App() {
         <>
       <section className="workspace single">
         <Panel title="Find a creator's best reels" icon={<Search size={18} />}>
-          <p className="fieldHint">Paste a creator page. IGFU scans recent posts, filters the time window, and ranks the strongest results by views.</p>
+          <p className="fieldHint">Paste a creator page. IGFU asks the actor for the number of posts you choose, applies the date filter when the actor supports it, then ranks results by views.</p>
           <div className="stepList" aria-label="Creator research steps">
             <span><strong>1</strong>Add creator page</span>
             <span><strong>2</strong>Choose scan range</span>
@@ -413,18 +430,18 @@ function App() {
           </p>
           <div className="compactGrid">
             <label>
-              <span>Scan posts from the last</span>
+              <span>Date filter</span>
               <select
                 value={creatorForm.days}
                 onChange={(event) => setCreatorForm((form) => ({ ...form, days: event.target.value }))}
               >
                 {DAY_OPTIONS.map((days) => (
-                  <option key={days} value={days}>{days} days</option>
+                  <option key={days} value={days}>{days ? `${days} days` : "No date filter"}</option>
                 ))}
               </select>
             </label>
             <label>
-              <span>Maximum results</span>
+              <span>Posts to request</span>
               <select
                 value={creatorForm.resultLimit}
                 onChange={(event) => setCreatorForm((form) => ({ ...form, resultLimit: event.target.value }))}
@@ -436,8 +453,8 @@ function App() {
             </label>
           </div>
           <p className="fieldHint">
-            IGFU scans enough recent posts, keeps the last {Number(creatorForm.days) || 30} days, then shows up to{" "}
-            {Number(creatorForm.resultLimit) || 30} winners. If only 10 posts match, you get 10.
+            Cost-safe mode: IGFU requests up to {Number(creatorForm.resultLimit) || 30} posts from the actor.{" "}
+            {Number(creatorForm.days) ? `It keeps posts from the last ${Number(creatorForm.days)} days when dates are returned.` : "No date filter is applied."}
           </p>
           <ActionRow>
             <button className="primary formPrimary" onClick={analyzeCreator} disabled={creatorBusy}>

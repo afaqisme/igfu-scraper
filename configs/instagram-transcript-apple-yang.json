@@ -1,0 +1,15 @@
+{
+  "actor": "apple_yang/instagram-transcripts-scraper",
+  "purpose": "Researched lower-cost Instagram transcript alternative, not the default.",
+  "input": {
+    "videoUrl": "https://www.instagram.com/p/DYuY53MOdSu/",
+    "sessionid": ""
+  },
+  "notes": [
+    "Apify page lists pricing from $1.00 per 1,000 results.",
+    "The documented input shape accepts one videoUrl per run.",
+    "Output fields include url, text, segments, createTime, likeCount, and commentCount.",
+    "A smoke test on the sample project URL completed but returned no transcript text, so IGFU does not use this actor as the default.",
+    "A sessionid is optional and may improve stability for some public Instagram videos."
+  ]
+}

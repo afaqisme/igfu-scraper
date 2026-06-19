@@ -3,7 +3,7 @@ const API_BASE = "https://api.apify.com/v2";
 const ACTORS = {
   instagram: {
     metadata: "apify/instagram-reel-scraper",
-    transcript: "crawlerbros/instagram-transcript-scraper",
+    transcript: "tictechid/anoxvanzi-transcriber",
   },
   facebook: {
     metadata: "unseenuser/fb-reels",
@@ -74,14 +74,17 @@ function buildActorInput(platform, workflow, input) {
   if (platform === "instagram" && workflow === "metadata") {
     return {
       username: compact([input.creator, ...(input.urls || [])]),
-      resultsLimit: Number(input.scanLimit || input.resultLimit || 60),
+      resultsLimit: Number(input.resultLimit || 30),
+      includeDownloadedVideo: false,
+      includeSharesCount: false,
+      includeTranscript: false,
+      skipPinnedPosts: false,
+      skipTrialReels: false,
     };
   }
   if (platform === "instagram" && workflow === "transcript") {
     return {
-      videoUrls: input.urls || [],
-      transcriptionMethod: "auto",
-      whisperModel: "base",
+      start_urls: compact(input.urls || []).join("\n"),
     };
   }
   if (platform === "facebook" && workflow === "metadata") {
@@ -92,7 +95,7 @@ function buildActorInput(platform, workflow, input) {
   if (platform === "tiktok" && workflow === "metadata") {
     return {
       profiles: compact([input.creator, ...(input.urls || [])]).map(normalizeTikTokProfile),
-      resultsPerPage: Number(input.scanLimit || input.resultLimit || 60),
+      resultsPerPage: Number(input.resultLimit || 30),
       profileScrapeSections: ["videos"],
       profileSorting: "latest",
       oldestPostDateUnified: input.days ? `${Number(input.days)} days` : undefined,
@@ -115,7 +118,7 @@ function buildActorInput(platform, workflow, input) {
     return {
       maxResultStreams: 0,
       maxResults: 0,
-      maxResultsShorts: Number(input.scanLimit || input.resultLimit || 60),
+      maxResultsShorts: Number(input.resultLimit || 30),
       oldestPostDate: input.days ? `${Number(input.days)} days` : undefined,
       sortVideosBy: "NEWEST",
       startUrls: compact([input.creator, ...(input.urls || [])]).map((url) => ({
@@ -147,10 +150,10 @@ function normalizeItem(platform, workflow, item) {
 function normalizeInstagram(item) {
   return {
     platform: "instagram",
-    url: pick(item, "url", "inputUrl", "postUrl", "reelUrl"),
-    id: pick(item, "shortCode", "shortcode", "code"),
-    date: pick(item, "timestamp", "postedAt", "date", "pubDate"),
-    caption: pick(item, "caption", "description", "postDescription"),
+    url: pick(item, "url", "sourceUrl", "inputUrl", "postUrl", "reelUrl"),
+    id: pick(item, "shortCode", "shortcode", "code", "videoId"),
+    date: normalizeTimestamp(pick(item, "timestamp", "postedAt", "date", "pubDate", "createTime")),
+    caption: pick(item, "caption", "description", "postDescription", "title"),
     views: pick(item, "videoViewCount", "viewCount", "views"),
     plays: pick(item, "videoPlayCount", "playCount", "plays"),
     likes: pick(item, "likesCount", "likeCount", "likes"),
@@ -217,6 +220,13 @@ function filterDays(rows, days) {
     const time = new Date(row.date || 0).getTime();
     return Number.isFinite(time) && time >= cutoff;
   });
+}
+
+function normalizeTimestamp(value) {
+  if (typeof value === "number" && value > 0 && value < 100000000000) {
+    return new Date(value * 1000).toISOString();
+  }
+  return value;
 }
 
 function pick(object, ...keys) {

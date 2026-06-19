@@ -64,7 +64,7 @@ The app uses a Netlify Function as a bridge to Apify actors.
 | Job | Actor |
 | --- | --- |
 | Instagram creator metadata | `apify/instagram-reel-scraper` |
-| Instagram transcripts | `crawlerbros/instagram-transcript-scraper` |
+| Instagram transcripts | `tictechid/anoxvanzi-transcriber` |
 | Facebook creator metadata | `unseenuser/fb-reels` |
 | Facebook transcripts | `unseenuser/fb-transcript` |
 | TikTok creator metadata | `clockworks/tiktok-scraper` |
