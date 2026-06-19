@@ -8,13 +8,13 @@ import {
   Trash2,
   Download,
   FileDown,
-  KeyRound,
   Loader2,
   Play,
   Save,
   Search,
   Send,
   Settings,
+  SlidersHorizontal,
   Square,
   X,
 } from "lucide-react";
@@ -35,6 +35,38 @@ const initialCreator = {
 
 const DAY_OPTIONS = [0, 7, 15, 30, 60, 90, 180, 365];
 const RESULT_OPTIONS = [3, 5, 10, 20, 30, 50, 100];
+const ADVANCED_DEFAULTS = {
+  instagram: {
+    resultsLimit: 30,
+    includeDownloadedVideo: false,
+    includeSharesCount: false,
+    includeTranscript: false,
+    skipPinnedPosts: false,
+    skipTrialReels: false,
+  },
+  tiktok: {
+    resultsPerPage: 30,
+    oldestPostDateUnified: "30 days",
+    profileSorting: "latest",
+    excludePinnedPosts: true,
+    commentsPerPost: 0,
+    scrapeRelatedVideos: false,
+    shouldDownloadVideos: false,
+    shouldDownloadCovers: false,
+    shouldDownloadSlideshowImages: false,
+    shouldDownloadAvatars: false,
+    shouldDownloadMusicCovers: false,
+    downloadSubtitlesOptions: "NEVER_DOWNLOAD_SUBTITLES",
+  },
+  youtube: {
+    maxResultStreams: 0,
+    maxResults: 0,
+    maxResultsShorts: 30,
+    oldestPostDate: "30 days",
+    sortVideosBy: "NEWEST",
+  },
+  facebook: {},
+};
 
 function splitLines(text) {
   return text
@@ -179,6 +211,9 @@ function App() {
   const [linkStatus, setLinkStatus] = useState("");
 
   const [creatorForm, setCreatorForm] = useState(initialCreator);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false);
+  const [advancedSettings, setAdvancedSettings] = useState(ADVANCED_DEFAULTS);
   const [metadataRows, setMetadataRows] = useState([]);
   const [selected, setSelected] = useState({});
   const [creatorBusy, setCreatorBusy] = useState(false);
@@ -193,6 +228,16 @@ function App() {
     return [...linked, ...analyzed];
   }, [linkRows, metadataRows]);
   const detectedCreatorPlatform = detectPlatform(creatorForm.creator);
+
+  function updateAdvanced(platform, key, value) {
+    setAdvancedSettings((settings) => ({
+      ...settings,
+      [platform]: {
+        ...settings[platform],
+        [key]: value,
+      },
+    }));
+  }
 
   function saveApiKey() {
     const trimmed = apiKey.trim();
@@ -249,8 +294,9 @@ function App() {
         workflow: "metadata",
         input: {
           creator: creatorForm.creator,
-          resultLimit: Number(creatorForm.resultLimit) || 30,
-          days: Number(creatorForm.days) || 0,
+          resultLimit: advancedEnabled ? 0 : Number(creatorForm.resultLimit) || 30,
+          days: advancedEnabled ? 0 : Number(creatorForm.days) || 0,
+          advanced: advancedEnabled ? advancedSettings[platform] : null,
         },
         apiKey,
         onStatus: (status) => setCreatorStatus(status === "RUNNING" ? "Scanning and ranking reels..." : status),
@@ -456,6 +502,40 @@ function App() {
             Cost-safe mode: IGFU requests up to {Number(creatorForm.resultLimit) || 30} posts from the actor.{" "}
             {Number(creatorForm.days) ? `It keeps posts from the last ${Number(creatorForm.days)} days when dates are returned.` : "No date filter is applied."}
           </p>
+          <div className="advancedBox">
+            <button className="advancedToggle" type="button" onClick={() => setAdvancedOpen((open) => !open)}>
+              <span>
+                <SlidersHorizontal size={17} />
+                Advanced actor settings
+              </span>
+              <strong>{advancedOpen ? "Hide" : "Show"}</strong>
+            </button>
+            {advancedOpen ? (
+              <div className="advancedBody">
+                <label className="toggleField">
+                  <input
+                    type="checkbox"
+                    checked={advancedEnabled}
+                    onChange={(event) => setAdvancedEnabled(event.target.checked)}
+                    disabled={!detectedCreatorPlatform}
+                  />
+                  <span>Use advanced settings instead of simple filters</span>
+                </label>
+                <p className="fieldHint">
+                  Advanced mode sends the exact actor fields below. Simple date/results filters are ignored while this is on.
+                </p>
+                {detectedCreatorPlatform ? (
+                  <AdvancedSettings
+                    platform={detectedCreatorPlatform}
+                    settings={advancedSettings[detectedCreatorPlatform]}
+                    onChange={(key, value) => updateAdvanced(detectedCreatorPlatform, key, value)}
+                  />
+                ) : (
+                  <p className="inlineValidation">Paste a supported creator URL first to load matching actor settings.</p>
+                )}
+              </div>
+            ) : null}
+          </div>
           <ActionRow>
             <button className="primary formPrimary" onClick={analyzeCreator} disabled={creatorBusy}>
               {creatorBusy ? <Loader2 className="spin" size={17} /> : <Search size={17} />}
@@ -569,6 +649,119 @@ function App() {
 
 function canonicalUrl(url) {
   return (url || "").replace("/reel/", "/p/").replace("facebook.com/watch/", "facebook.com/reel/").split("?")[0].replace(/\/$/, "");
+}
+
+function AdvancedSettings({ platform, settings, onChange }) {
+  if (platform === "facebook") {
+    return (
+      <div className="advancedNotice">
+        The verified Facebook creator actor only exposes <code>startUrls</code> for this workflow, so IGFU keeps Facebook in simple mode.
+      </div>
+    );
+  }
+
+  if (platform === "instagram") {
+    return (
+      <div className="advancedGrid">
+        <NumberControl label="resultsLimit" value={settings.resultsLimit} min={1} max={100} onChange={(value) => onChange("resultsLimit", value)} />
+        <ToggleControl label="skipPinnedPosts" checked={settings.skipPinnedPosts} onChange={(value) => onChange("skipPinnedPosts", value)} />
+        <ToggleControl label="skipTrialReels" checked={settings.skipTrialReels} onChange={(value) => onChange("skipTrialReels", value)} />
+        <ToggleControl label="includeSharesCount" checked={settings.includeSharesCount} onChange={(value) => onChange("includeSharesCount", value)} warning="Higher cost" />
+        <ToggleControl label="includeTranscript" checked={settings.includeTranscript} onChange={(value) => onChange("includeTranscript", value)} warning="Expensive" />
+        <ToggleControl label="includeDownloadedVideo" checked={settings.includeDownloadedVideo} onChange={(value) => onChange("includeDownloadedVideo", value)} warning="Slow" />
+      </div>
+    );
+  }
+
+  if (platform === "tiktok") {
+    return (
+      <div className="advancedGrid">
+        <NumberControl label="resultsPerPage" value={settings.resultsPerPage} min={1} max={100} onChange={(value) => onChange("resultsPerPage", value)} />
+        <TextControl label="oldestPostDateUnified" value={settings.oldestPostDateUnified} placeholder="30 days" onChange={(value) => onChange("oldestPostDateUnified", value)} />
+        <SelectControl
+          label="profileSorting"
+          value={settings.profileSorting}
+          options={["latest", "popular", "oldest"]}
+          onChange={(value) => onChange("profileSorting", value)}
+        />
+        <NumberControl label="commentsPerPost" value={settings.commentsPerPost} min={0} max={50} onChange={(value) => onChange("commentsPerPost", value)} warning="Costs more" />
+        <SelectControl
+          label="downloadSubtitlesOptions"
+          value={settings.downloadSubtitlesOptions}
+          options={["NEVER_DOWNLOAD_SUBTITLES", "DOWNLOAD_SUBTITLES"]}
+          onChange={(value) => onChange("downloadSubtitlesOptions", value)}
+        />
+        <ToggleControl label="excludePinnedPosts" checked={settings.excludePinnedPosts} onChange={(value) => onChange("excludePinnedPosts", value)} />
+        <ToggleControl label="scrapeRelatedVideos" checked={settings.scrapeRelatedVideos} onChange={(value) => onChange("scrapeRelatedVideos", value)} warning="Costs more" />
+        <ToggleControl label="shouldDownloadVideos" checked={settings.shouldDownloadVideos} onChange={(value) => onChange("shouldDownloadVideos", value)} warning="Slow" />
+        <ToggleControl label="shouldDownloadCovers" checked={settings.shouldDownloadCovers} onChange={(value) => onChange("shouldDownloadCovers", value)} />
+        <ToggleControl label="shouldDownloadSlideshowImages" checked={settings.shouldDownloadSlideshowImages} onChange={(value) => onChange("shouldDownloadSlideshowImages", value)} />
+        <ToggleControl label="shouldDownloadAvatars" checked={settings.shouldDownloadAvatars} onChange={(value) => onChange("shouldDownloadAvatars", value)} />
+        <ToggleControl label="shouldDownloadMusicCovers" checked={settings.shouldDownloadMusicCovers} onChange={(value) => onChange("shouldDownloadMusicCovers", value)} />
+      </div>
+    );
+  }
+
+  if (platform === "youtube") {
+    return (
+      <div className="advancedGrid">
+        <NumberControl label="maxResultsShorts" value={settings.maxResultsShorts} min={0} max={100} onChange={(value) => onChange("maxResultsShorts", value)} />
+        <NumberControl label="maxResults" value={settings.maxResults} min={0} max={100} onChange={(value) => onChange("maxResults", value)} />
+        <NumberControl label="maxResultStreams" value={settings.maxResultStreams} min={0} max={100} onChange={(value) => onChange("maxResultStreams", value)} />
+        <TextControl label="oldestPostDate" value={settings.oldestPostDate} placeholder="30 days" onChange={(value) => onChange("oldestPostDate", value)} />
+        <SelectControl
+          label="sortVideosBy"
+          value={settings.sortVideosBy}
+          options={["NEWEST", "POPULAR", "OLDEST"]}
+          onChange={(value) => onChange("sortVideosBy", value)}
+        />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function NumberControl({ label, value, min, max, onChange, warning }) {
+  return (
+    <label className="advancedField">
+      <span>{label}</span>
+      <input type="number" min={min} max={max} value={value} onChange={(event) => onChange(Number(event.target.value))} />
+      {warning ? <small>{warning}</small> : null}
+    </label>
+  );
+}
+
+function TextControl({ label, value, placeholder, onChange }) {
+  return (
+    <label className="advancedField">
+      <span>{label}</span>
+      <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+    </label>
+  );
+}
+
+function SelectControl({ label, value, options, onChange }) {
+  return (
+    <label className="advancedField">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ToggleControl({ label, checked, onChange, warning }) {
+  return (
+    <label className="toggleField advancedToggleField">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <span>{label}</span>
+      {warning ? <small>{warning}</small> : null}
+    </label>
+  );
 }
 
 function Panel({ title, icon, children }) {

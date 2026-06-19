@@ -61,25 +61,27 @@ async function getItems(body, token) {
   if (!body.datasetId) return json(400, { error: "datasetId is required" });
   const data = await apify(`${API_BASE}/datasets/${body.datasetId}/items?token=${encodeURIComponent(token)}&clean=true`);
   const normalized = data.map((item) => normalizeItem(body.platform, body.workflow, item));
-  const days = Number(body.input?.days || 0);
+  const advancedMode = Boolean(body.input?.advanced);
+  const days = advancedMode ? 0 : Number(body.input?.days || 0);
   let rows = days ? filterDays(normalized, days) : normalized;
   rows = rows.sort((a, b) => Number(b.views || 0) - Number(a.views || 0));
-  if (body.workflow === "metadata" && Number(body.input?.resultLimit || 0)) {
+  if (!advancedMode && body.workflow === "metadata" && Number(body.input?.resultLimit || 0)) {
     rows = rows.slice(0, Number(body.input.resultLimit));
   }
   return json(200, { items: rows });
 }
 
 function buildActorInput(platform, workflow, input) {
+  const advanced = input.advanced || {};
   if (platform === "instagram" && workflow === "metadata") {
     return {
       username: compact([input.creator, ...(input.urls || [])]),
-      resultsLimit: Number(input.resultLimit || 30),
-      includeDownloadedVideo: false,
-      includeSharesCount: false,
-      includeTranscript: false,
-      skipPinnedPosts: false,
-      skipTrialReels: false,
+      resultsLimit: numberSetting(advanced.resultsLimit, input.resultLimit || 30),
+      includeDownloadedVideo: boolSetting(advanced.includeDownloadedVideo, false),
+      includeSharesCount: boolSetting(advanced.includeSharesCount, false),
+      includeTranscript: boolSetting(advanced.includeTranscript, false),
+      skipPinnedPosts: boolSetting(advanced.skipPinnedPosts, false),
+      skipTrialReels: boolSetting(advanced.skipTrialReels, false),
     };
   }
   if (platform === "instagram" && workflow === "transcript") {
@@ -95,18 +97,19 @@ function buildActorInput(platform, workflow, input) {
   if (platform === "tiktok" && workflow === "metadata") {
     return {
       profiles: compact([input.creator, ...(input.urls || [])]).map(normalizeTikTokProfile),
-      resultsPerPage: Number(input.resultLimit || 30),
+      resultsPerPage: numberSetting(advanced.resultsPerPage, input.resultLimit || 30),
       profileScrapeSections: ["videos"],
-      profileSorting: "latest",
-      oldestPostDateUnified: input.days ? `${Number(input.days)} days` : undefined,
-      excludePinnedPosts: true,
-      shouldDownloadVideos: false,
-      shouldDownloadCovers: false,
-      shouldDownloadSlideshowImages: false,
-      shouldDownloadAvatars: false,
-      shouldDownloadMusicCovers: false,
-      commentsPerPost: 0,
-      downloadSubtitlesOptions: "NEVER_DOWNLOAD_SUBTITLES",
+      profileSorting: stringSetting(advanced.profileSorting, "latest"),
+      oldestPostDateUnified: stringSetting(advanced.oldestPostDateUnified, input.days ? `${Number(input.days)} days` : undefined),
+      excludePinnedPosts: boolSetting(advanced.excludePinnedPosts, true),
+      scrapeRelatedVideos: boolSetting(advanced.scrapeRelatedVideos, false),
+      shouldDownloadVideos: boolSetting(advanced.shouldDownloadVideos, false),
+      shouldDownloadCovers: boolSetting(advanced.shouldDownloadCovers, false),
+      shouldDownloadSlideshowImages: boolSetting(advanced.shouldDownloadSlideshowImages, false),
+      shouldDownloadAvatars: boolSetting(advanced.shouldDownloadAvatars, false),
+      shouldDownloadMusicCovers: boolSetting(advanced.shouldDownloadMusicCovers, false),
+      commentsPerPost: numberSetting(advanced.commentsPerPost, 0),
+      downloadSubtitlesOptions: stringSetting(advanced.downloadSubtitlesOptions, "NEVER_DOWNLOAD_SUBTITLES"),
     };
   }
   if (platform === "tiktok" && workflow === "transcript") {
@@ -116,11 +119,11 @@ function buildActorInput(platform, workflow, input) {
   }
   if (platform === "youtube" && workflow === "metadata") {
     return {
-      maxResultStreams: 0,
-      maxResults: 0,
-      maxResultsShorts: Number(input.resultLimit || 30),
-      oldestPostDate: input.days ? `${Number(input.days)} days` : undefined,
-      sortVideosBy: "NEWEST",
+      maxResultStreams: numberSetting(advanced.maxResultStreams, 0),
+      maxResults: numberSetting(advanced.maxResults, 0),
+      maxResultsShorts: numberSetting(advanced.maxResultsShorts, input.resultLimit || 30),
+      oldestPostDate: stringSetting(advanced.oldestPostDate, input.days ? `${Number(input.days)} days` : undefined),
+      sortVideosBy: stringSetting(advanced.sortVideosBy, "NEWEST"),
       startUrls: compact([input.creator, ...(input.urls || [])]).map((url) => ({
         url,
         method: "GET",
@@ -227,6 +230,19 @@ function normalizeTimestamp(value) {
     return new Date(value * 1000).toISOString();
   }
   return value;
+}
+
+function numberSetting(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function boolSetting(value, fallback) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function stringSetting(value, fallback) {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
 function pick(object, ...keys) {

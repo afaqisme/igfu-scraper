@@ -39,6 +39,8 @@ Use this when you want to study a creator and find their strongest recent posts.
 6. Transcribe selected reels directly into the same table.
 7. Export selected rows as CSV or Markdown.
 
+Advanced actor settings are available inside the creator workflow. When enabled, they override the simple date/results controls and send platform-specific actor fields directly to Apify, such as Instagram `resultsLimit`, TikTok `resultsPerPage`, and YouTube Shorts `maxResultsShorts`.
+
 ### Link Transcriber
 
 Use this when you already have saved reel links.

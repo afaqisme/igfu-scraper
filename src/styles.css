@@ -570,6 +570,113 @@ select {
   font-weight: 900;
 }
 
+.advancedBox {
+  margin-top: 14px;
+  border: 1px solid #e3d6ca;
+  border-radius: 14px;
+  background: #fffaf3;
+}
+
+.advancedToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.advancedToggle span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advancedToggle svg {
+  color: var(--orange-dark);
+}
+
+.advancedToggle strong {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.advancedBody {
+  display: grid;
+  gap: 12px;
+  padding: 0 13px 13px;
+}
+
+.advancedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.advancedField {
+  display: grid;
+  gap: 6px;
+}
+
+.advancedField span,
+.toggleField span {
+  color: #5e4636;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.advancedField small,
+.toggleField small {
+  color: var(--danger);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.toggleField {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid #eadfd2;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.toggleField input {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  accent-color: var(--orange);
+}
+
+.advancedToggleField {
+  justify-content: flex-start;
+}
+
+.advancedNotice {
+  padding: 12px;
+  border: 1px dashed #d9cfc5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.advancedNotice code {
+  color: var(--ink);
+  font-weight: 900;
+}
+
 .actionRow {
   justify-content: space-between;
   gap: 12px;
@@ -933,6 +1040,10 @@ td:nth-child(3) {
   .primary {
     flex: 1 1 auto;
   }
+
+  .advancedGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 560px) {
@@ -993,6 +1104,10 @@ td:nth-child(3) {
   }
 
   .compactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .advancedGrid {
     grid-template-columns: 1fr;
   }
 }
