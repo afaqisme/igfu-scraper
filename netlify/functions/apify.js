@@ -9,6 +9,10 @@ const ACTORS = {
     metadata: "unseenuser/fb-reels",
     transcript: "unseenuser/fb-transcript",
   },
+  tiktok: {
+    metadata: "clockworks/tiktok-scraper",
+    transcript: "aticode/tiktok-transcript-scraper",
+  },
   youtube: {
     metadata: "streamers/youtube-channel-scraper",
     transcript: "junipr/youtube-transcript-extractor",
@@ -85,6 +89,28 @@ function buildActorInput(platform, workflow, input) {
       startUrls: compact([input.creator, ...(input.urls || [])]),
     };
   }
+  if (platform === "tiktok" && workflow === "metadata") {
+    return {
+      profiles: compact([input.creator, ...(input.urls || [])]).map(normalizeTikTokProfile),
+      resultsPerPage: Number(input.scanLimit || input.resultLimit || 60),
+      profileScrapeSections: ["videos"],
+      profileSorting: "latest",
+      oldestPostDateUnified: input.days ? `${Number(input.days)} days` : undefined,
+      excludePinnedPosts: true,
+      shouldDownloadVideos: false,
+      shouldDownloadCovers: false,
+      shouldDownloadSlideshowImages: false,
+      shouldDownloadAvatars: false,
+      shouldDownloadMusicCovers: false,
+      commentsPerPost: 0,
+      downloadSubtitlesOptions: "NEVER_DOWNLOAD_SUBTITLES",
+    };
+  }
+  if (platform === "tiktok" && workflow === "transcript") {
+    return {
+      videoUrls: input.urls || [],
+    };
+  }
   if (platform === "youtube" && workflow === "metadata") {
     return {
       maxResultStreams: 0,
@@ -113,6 +139,7 @@ function buildActorInput(platform, workflow, input) {
 
 function normalizeItem(platform, workflow, item) {
   if (platform === "facebook") return normalizeFacebook(item);
+  if (platform === "tiktok") return normalizeTikTok(item);
   if (platform === "youtube") return normalizeYouTube(item);
   return normalizeInstagram(item, workflow);
 }
@@ -145,6 +172,21 @@ function normalizeFacebook(item) {
     likes: pick(reel, "likes", "like_count", "likeCount"),
     comments: pick(reel, "comments", "comment_count", "commentCount"),
     transcript: pick(item, "transcript", "transcriptText", "text") || pick(reel, "transcript", "transcriptText", "text"),
+  };
+}
+
+function normalizeTikTok(item) {
+  return {
+    platform: "tiktok",
+    url: pick(item, "webVideoUrl", "url", "videoUrl"),
+    id: pick(item, "id", "videoId"),
+    date: pick(item, "createTimeISO", "createTime", "date", "fetchedAt"),
+    caption: pick(item, "text", "description", "caption"),
+    views: pick(item, "playCount", "viewCount", "views"),
+    plays: pick(item, "playCount", "viewCount", "views"),
+    likes: pick(item, "diggCount", "likeCount", "likes"),
+    comments: pick(item, "commentCount", "comments"),
+    transcript: pick(item, "transcript", "textTranscript", "captionText", "fullText"),
   };
 }
 
@@ -187,6 +229,12 @@ function pick(object, ...keys) {
 
 function compact(values) {
   return values.filter((value) => typeof value === "string" && value.trim()).map((value) => value.trim());
+}
+
+function normalizeTikTokProfile(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/tiktok\.com\/@([^/?#]+)/i);
+  return match?.[1] || text.replace(/^@/, "");
 }
 
 function actorId(actor) {

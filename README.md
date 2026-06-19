@@ -2,11 +2,11 @@
 
 Creator intelligence tool for finding high-performing short-form videos, pulling scripts, and exporting clean research files.
 
-IGFU Scraper helps content creators, social media researchers, agencies, and YouTube/Instagram strategists analyze Instagram Reels, Facebook Reels, and YouTube Shorts without manually copying captions, view counts, links, and transcripts into spreadsheets.
+IGFU Scraper helps content creators, social media researchers, agencies, and short-form video strategists analyze Instagram Reels, Facebook Reels, TikTok videos, and YouTube Shorts without manually copying captions, view counts, links, and transcripts into spreadsheets.
 
 ## What It Does
 
-- Analyze an Instagram, Facebook, or YouTube creator page.
+- Analyze an Instagram, Facebook, TikTok, or YouTube creator page.
 - Filter recent posts by lookback window, such as 30, 60, or 90 days.
 - Rank creator reels by views.
 - Select the reels worth studying.
@@ -22,6 +22,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and You
 | --- | --- | --- | --- | --- |
 | Instagram Reels | Yes | Yes | Yes, when returned by actor | Yes |
 | Facebook Reels | Yes | Yes | Yes, when returned by actor | Yes |
+| TikTok videos | Yes | Yes | Yes | Yes |
 | YouTube Shorts | Yes | Yes | Title/metadata when returned by actor | Yes |
 
 ## Main Workflows
@@ -30,7 +31,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and You
 
 Use this when you want to study a creator and find their strongest recent posts.
 
-1. Paste an Instagram, Facebook, or YouTube creator URL.
+1. Paste an Instagram, Facebook, TikTok, or YouTube creator URL.
 2. Choose how many days to look back.
 3. Choose the maximum number of winning reels to show.
 4. Scan the creator.
@@ -42,7 +43,7 @@ Use this when you want to study a creator and find their strongest recent posts.
 
 Use this when you already have saved reel links.
 
-1. Paste Instagram, Facebook, or YouTube Shorts URLs, one per line.
+1. Paste Instagram, Facebook, TikTok, or YouTube Shorts URLs, one per line.
 2. Pull transcripts.
 3. Copy individual transcripts.
 4. Export the transcript batch as CSV or Markdown.
@@ -66,6 +67,8 @@ The app uses a Netlify Function as a bridge to Apify actors.
 | Instagram transcripts | `crawlerbros/instagram-transcript-scraper` |
 | Facebook creator metadata | `unseenuser/fb-reels` |
 | Facebook transcripts | `unseenuser/fb-transcript` |
+| TikTok creator metadata | `clockworks/tiktok-scraper` |
+| TikTok transcripts | `aticode/tiktok-transcript-scraper` |
 | YouTube Shorts creator metadata | `streamers/youtube-channel-scraper` |
 | YouTube Shorts transcripts | `junipr/youtube-transcript-extractor` |
 

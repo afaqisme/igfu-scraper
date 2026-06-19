@@ -21,6 +21,7 @@ import "./styles.css";
 const PLATFORMS = {
   instagram: { label: "Instagram", accent: "#c2457a" },
   facebook: { label: "Facebook", accent: "#2563eb" },
+  tiktok: { label: "TikTok", accent: "#111111" },
   youtube: { label: "YouTube", accent: "#dc2626" },
 };
 
@@ -119,6 +120,7 @@ function detectPlatform(url) {
   const lower = (url || "").toLowerCase();
   if (lower.includes("instagram.com")) return "instagram";
   if (lower.includes("facebook.com") || lower.includes("fb.watch")) return "facebook";
+  if (lower.includes("tiktok.com")) return "tiktok";
   if (lower.includes("youtube.com") || lower.includes("youtu.be")) return "youtube";
   return "";
 }
@@ -131,7 +133,7 @@ function groupUrlsByPlatform(urls) {
       else groups.unknown.push(url);
       return groups;
     },
-    { instagram: [], facebook: [], youtube: [], unknown: [] },
+    { instagram: [], facebook: [], tiktok: [], youtube: [], unknown: [] },
   );
 }
 
@@ -185,7 +187,7 @@ function App() {
     setLinkStatus("STARTING");
     try {
       const results = [];
-      for (const platform of ["instagram", "facebook", "youtube"]) {
+      for (const platform of ["instagram", "facebook", "tiktok", "youtube"]) {
         if (!groups[platform].length) continue;
         const data = await runWorkflow({
           platform,
@@ -253,7 +255,7 @@ function App() {
     setTranscribeStatus("STARTING");
     try {
       const transcriptItems = [];
-      for (const platform of ["instagram", "facebook", "youtube"]) {
+      for (const platform of ["instagram", "facebook", "tiktok", "youtube"]) {
         if (!groups[platform].length) continue;
         const data = await runWorkflow({
           platform,
@@ -336,6 +338,7 @@ function App() {
             <div className="platformStrip heroPlatforms" aria-label="Supported platforms">
               <span>Instagram</span>
               <span>Facebook</span>
+              <span>TikTok</span>
               <span>YouTube Shorts</span>
             </div>
             <h1>Creator Intelligence That Finds Winning Ideas And Pulls Scripts</h1>
@@ -362,7 +365,7 @@ function App() {
         <>
       <section className="workspace single">
         <Panel title="Find a creator's best reels" icon={<Search size={18} />}>
-          <p className="fieldHint">Use this when you want top posts from an Instagram, Facebook, or YouTube Shorts creator before choosing what to transcribe.</p>
+          <p className="fieldHint">Use this when you want top posts from an Instagram, Facebook, TikTok, or YouTube Shorts creator before choosing what to transcribe.</p>
           <div className="capabilityLine">
             <span>Ranks by views</span>
             <span>Filters by date</span>
@@ -373,7 +376,7 @@ function App() {
             <input
               value={creatorForm.creator}
               onChange={(event) => setCreatorForm((form) => ({ ...form, creator: event.target.value }))}
-              placeholder="Instagram, Facebook, or YouTube creator URL"
+              placeholder="Instagram, Facebook, TikTok, or YouTube creator URL"
             />
           </label>
           <div className="compactGrid">
@@ -444,6 +447,7 @@ function App() {
           <div className="capabilityLine">
             <span>Instagram</span>
             <span>Facebook</span>
+            <span>TikTok</span>
             <span>YouTube Shorts</span>
           </div>
           <label className="fieldLabel">

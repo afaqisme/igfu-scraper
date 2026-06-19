@@ -1,0 +1,14 @@
+{
+  "actor": "aticode/tiktok-transcript-scraper",
+  "purpose": "Primary TikTok transcript actor.",
+  "input": {
+    "videoUrls": [
+      "https://www.tiktok.com/@mrbeast/video/7651447222449556767"
+    ]
+  },
+  "notes": [
+    "Apify page lists pricing from $1.00 per 1,000 transcript delivereds.",
+    "Verified with a public TikTok video URL using the videoUrls input.",
+    "Returned url, videoId, description, playCount, likeCount, commentCount, transcript, and segments."
+  ]
+}
