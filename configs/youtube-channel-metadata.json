@@ -1,0 +1,22 @@
+{
+  "actor": "streamers/youtube-channel-scraper",
+  "purpose": "Primary YouTube Shorts creator metadata actor.",
+  "input": {
+    "maxResultStreams": 0,
+    "maxResults": 0,
+    "maxResultsShorts": 30,
+    "oldestPostDate": "90 days",
+    "sortVideosBy": "NEWEST",
+    "startUrls": [
+      {
+        "url": "https://www.youtube.com/@Apify",
+        "method": "GET"
+      }
+    ]
+  },
+  "notes": [
+    "Apify page lists pricing from $0.50 per 1,000 videos.",
+    "Use maxResultsShorts for Shorts-only creator research.",
+    "Returns video URL, title, date, viewCount, duration, thumbnail, and channel fields."
+  ]
+}

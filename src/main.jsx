@@ -207,8 +207,8 @@ function App() {
 
   async function analyzeCreator() {
     const platform = detectPlatform(creatorForm.creator);
-    if (!platform || platform === "youtube") {
-      setCreatorStatus("Creator metadata supports Instagram and Facebook for now");
+    if (!platform) {
+      setCreatorStatus("Paste an Instagram, Facebook, or YouTube creator URL first");
       return;
     }
     setCreatorBusy(true);
@@ -362,18 +362,18 @@ function App() {
         <>
       <section className="workspace single">
         <Panel title="Find a creator's best reels" icon={<Search size={18} />}>
-          <p className="fieldHint">Use this when you want the top posts from an Instagram or Facebook creator before choosing what to transcribe.</p>
+          <p className="fieldHint">Use this when you want top posts from an Instagram, Facebook, or YouTube Shorts creator before choosing what to transcribe.</p>
           <div className="capabilityLine">
             <span>Ranks by views</span>
             <span>Filters by date</span>
-            <span>Captions included</span>
+            <span>Captions or titles included</span>
           </div>
           <label className="fieldLabel">
-            <span>Creator reels page</span>
+            <span>Creator reels/shorts page</span>
             <input
               value={creatorForm.creator}
               onChange={(event) => setCreatorForm((form) => ({ ...form, creator: event.target.value }))}
-              placeholder="https://www.instagram.com/creator/reels"
+              placeholder="Instagram, Facebook, or YouTube creator URL"
             />
           </label>
           <div className="compactGrid">

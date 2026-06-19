@@ -6,7 +6,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and You
 
 ## What It Does
 
-- Analyze an Instagram or Facebook creator reels page.
+- Analyze an Instagram, Facebook, or YouTube creator page.
 - Filter recent posts by lookback window, such as 30, 60, or 90 days.
 - Rank creator reels by views.
 - Select the reels worth studying.
@@ -22,7 +22,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and You
 | --- | --- | --- | --- | --- |
 | Instagram Reels | Yes | Yes | Yes, when returned by actor | Yes |
 | Facebook Reels | Yes | Yes | Yes, when returned by actor | Yes |
-| YouTube Shorts | Not yet | Yes | Title/metadata when returned by actor | Actor-dependent |
+| YouTube Shorts | Yes | Yes | Title/metadata when returned by actor | Yes |
 
 ## Main Workflows
 
@@ -30,7 +30,7 @@ IGFU Scraper helps content creators, social media researchers, agencies, and You
 
 Use this when you want to study a creator and find their strongest recent posts.
 
-1. Paste an Instagram or Facebook reels page URL.
+1. Paste an Instagram, Facebook, or YouTube creator URL.
 2. Choose how many days to look back.
 3. Choose the maximum number of winning reels to show.
 4. Scan the creator.
@@ -66,6 +66,7 @@ The app uses a Netlify Function as a bridge to Apify actors.
 | Instagram transcripts | `crawlerbros/instagram-transcript-scraper` |
 | Facebook creator metadata | `unseenuser/fb-reels` |
 | Facebook transcripts | `unseenuser/fb-transcript` |
+| YouTube Shorts creator metadata | `streamers/youtube-channel-scraper` |
 | YouTube Shorts transcripts | `junipr/youtube-transcript-extractor` |
 
 Actor pricing and behavior can change over time. Check Apify before production use.

@@ -10,6 +10,7 @@ const ACTORS = {
     transcript: "unseenuser/fb-transcript",
   },
   youtube: {
+    metadata: "streamers/youtube-channel-scraper",
     transcript: "junipr/youtube-transcript-extractor",
   },
 };
@@ -84,6 +85,19 @@ function buildActorInput(platform, workflow, input) {
       startUrls: compact([input.creator, ...(input.urls || [])]),
     };
   }
+  if (platform === "youtube" && workflow === "metadata") {
+    return {
+      maxResultStreams: 0,
+      maxResults: 0,
+      maxResultsShorts: Number(input.scanLimit || input.resultLimit || 60),
+      oldestPostDate: input.days ? `${Number(input.days)} days` : undefined,
+      sortVideosBy: "NEWEST",
+      startUrls: compact([input.creator, ...(input.urls || [])]).map((url) => ({
+        url,
+        method: "GET",
+      })),
+    };
+  }
   if (platform === "facebook" && workflow === "transcript") {
     return {
       startUrls: input.urls || [],
@@ -137,16 +151,22 @@ function normalizeFacebook(item) {
 function normalizeYouTube(item) {
   return {
     platform: "youtube",
-    url: pick(item, "videoUrl", "url"),
+    url: normalizeYouTubeShortUrl(pick(item, "videoUrl", "url", "shortUrl")),
     id: pick(item, "videoId", "id"),
-    date: pick(item, "publishedAt", "date"),
+    date: pick(item, "publishedAt", "date", "timestamp", "publishDate"),
     caption: pick(item, "title", "caption", "description"),
-    views: pick(item, "viewCount", "views"),
+    views: pick(item, "viewCount", "views", "view_count"),
     plays: null,
-    likes: "",
-    comments: "",
+    likes: pick(item, "likes", "likeCount", "likesCount"),
+    comments: pick(item, "comments", "commentsCount", "commentCount"),
     transcript: pick(item, "transcript", "text", "fullText"),
   };
+}
+
+function normalizeYouTubeShortUrl(url) {
+  const text = String(url || "");
+  const match = text.match(/[?&]v=([^&]+)/) || text.match(/shorts\/([^?&/]+)/) || text.match(/youtu\.be\/([^?&/]+)/);
+  return match?.[1] ? `https://www.youtube.com/shorts/${match[1]}` : text;
 }
 
 function filterDays(rows, days) {
