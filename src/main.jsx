@@ -310,8 +310,8 @@ function App() {
             <div className="settingsTitle compact">
               <KeyRound size={16} />
               <div>
-                <strong>API Settings</strong>
-                <span>{apiKey.trim() ? "Apify key saved" : "Add Apify key"}</span>
+                <strong>Apify API key</strong>
+                <span>{apiKey.trim() ? "Saved in this browser" : "Runs creator scans and transcripts"}</span>
               </div>
             </div>
             <div className="settingsInput compact">
@@ -319,8 +319,9 @@ function App() {
                 type="password"
                 value={apiKey}
                 onChange={(event) => setApiKey(event.target.value)}
-                placeholder="Apify API key"
+                placeholder="Paste your Apify API key"
                 autoComplete="off"
+                aria-label="Apify API key for running creator scans and transcript actors"
               />
               <button className="ghost" onClick={saveApiKey}>
                 <Save size={16} />

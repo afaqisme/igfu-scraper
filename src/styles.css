@@ -221,7 +221,10 @@ a:hover {
 }
 
 .settingsTitle.compact span {
-  display: none;
+  display: block;
+  max-width: 150px;
+  font-size: 0.68rem;
+  line-height: 1.15;
 }
 
 .settingsInput {
